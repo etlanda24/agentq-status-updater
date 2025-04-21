@@ -69,7 +69,7 @@ class AgentQStatusUpdater {
     const cases = title.split("-")[0].split(",");
     for (const id of cases) {
       try {
-        const response = await this.fetchJson(`/test-runs/${this.testRunId}/test-results/tcId/${id}`, { method: "PATCH", body: JSON.stringify(data) });
+        const response = await fetch(`${this.baseUrl}/test-runs/${this.testRunId}/test-results/tcId/${id}`, { method: "PATCH", headers: { Authorization: `Bearer ${this.apiKey}`, "Content-Type": "application/json" }, body: JSON.stringify(data) });
         return response;
       } catch (error) {
         console.error(`Error patching result ${id}:`, error.message);
