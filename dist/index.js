@@ -1,15 +1,101 @@
 // src/index.ts
-async function hitExampleEndpoint(param) {
-  const res = await fetch(`https://jsonplaceholder.typicode.com/posts/1`, {
-    headers: {
-      "Content-Type": "application/json"
-    }
-  });
-  if (!res.ok) {
-    throw new Error(`Failed with status ${res.status}`);
+class AgentQStatusUpdater {
+  apiKey;
+  baseUrl;
+  testRunId;
+  tcidToIdCache;
+  constructor(apiKey, projectId, testRunId) {
+    this.apiKey = apiKey;
+    this.testRunId = testRunId;
+    this.baseUrl = `https://agentq-sdet.mekari.io/api/projects/${projectId}`;
+    this.tcidToIdCache = {};
   }
-  return res.json();
+  async populateTestCases() {
+    this.tcidToIdCache = {};
+    let page = 1;
+    while (true) {
+      try {
+        const response = await this.fetchJson(`/test-runs/${this.testRunId}/test-results`, { page, limit: 100 });
+        const data = response.results;
+        if (!data || data.length === 0)
+          break;
+        data.forEach((testCase) => {
+          this.tcidToIdCache[testCase.testCase.tcId] = testCase.id;
+        });
+        page++;
+      } catch (error) {
+        console.error("Error populating cache:", error.message);
+        throw error;
+      }
+    }
+    console.log(`Cache populated with ${Object.keys(this.tcidToIdCache).length} entries.`);
+    return this.tcidToIdCache;
+  }
+  async populateTestCasesByTitle() {
+    this.tcidToIdCache = {};
+    let page = 1;
+    while (true) {
+      try {
+        const response = await this.fetchJson(`/test-runs/${this.testRunId}/test-results`, { page, limit: 100 });
+        const data = response.results;
+        if (!data || data.length === 0)
+          break;
+        data.forEach((testCase) => {
+          const idFromTitle = testCase.testCase.title.split("#C");
+          this.tcidToIdCache[idFromTitle[1]] = testCase.testCase.tcId;
+        });
+        page++;
+      } catch (error) {
+        console.error("Error populating cache:", error.message);
+        throw error;
+      }
+    }
+    console.log(`Cache populated with ${Object.keys(this.tcidToIdCache).length} entries.`);
+    return this.tcidToIdCache;
+  }
+  async getRunDetails() {
+    return this.fetchJson(`/test-runs/${this.testRunId}`);
+  }
+  async getCasesDetails(page = 1, limit = 100) {
+    return this.fetchJson(`/test-runs/${this.testRunId}/test-results`, { page, limit });
+  }
+  async getSummary() {
+    return this.fetchJson(`/test-runs/${this.testRunId}/summary`);
+  }
+  async patchResult(testInfo) {
+    const status = testInfo.status.toLowerCase();
+    const data = { status, actualResult: "", notes: "" };
+    const title = testInfo.title;
+    const cases = title.split("-")[0].split(",");
+    for (const id of cases) {
+      try {
+        const response = await this.fetchJson(`/test-runs/${this.testRunId}/test-results/tcId/${id}`, { method: "PATCH", body: JSON.stringify(data) });
+        return response;
+      } catch (error) {
+        console.error(`Error patching result ${id}:`, error.message);
+      }
+    }
+  }
+  async fetchJson(endpoint, params = {}, method = "GET") {
+    const url = new URL(endpoint, this.baseUrl);
+    if (params) {
+      Object.keys(params).forEach((key) => url.searchParams.append(key, String(params[key])));
+    }
+    const response = await fetch(url.toString(), {
+      method,
+      headers: {
+        Authorization: `Bearer ${this.apiKey}`,
+        "Content-Type": "application/json"
+      },
+      body: method === "PATCH" ? JSON.stringify(params) : undefined
+    });
+    if (!response.ok) {
+      throw new Error(`Failed to fetch ${url}: ${response.statusText}`);
+    }
+    return response.json();
+  }
 }
+var src_default = AgentQStatusUpdater;
 export {
-  hitExampleEndpoint
+  src_default as default
 };
