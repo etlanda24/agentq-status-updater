@@ -2354,7 +2354,7 @@ class AgentQStatusUpdater {
   constructor(apiKey, projectId, testRunId) {
     this.apiKey = apiKey;
     this.testRunId = testRunId;
-    this.baseUrl = "https://agentq-sdet.mekari.io/api/projects/" + projectId;
+    this.baseUrl = `https://agentq-sdet.mekari.io/api/projects/${projectId}`;
     this.tcidToIdCache = {};
     this.client = axios_default.create({
       baseURL: this.baseUrl,
@@ -2376,7 +2376,11 @@ class AgentQStatusUpdater {
         });
         page++;
       } catch (error) {
-        console.error("Error populating cache:", error.message);
+        if (error instanceof Error) {
+          console.error("Error populating cache:", error.message);
+        } else {
+          console.error("Unknown error during populateTestCases");
+        }
         throw error;
       }
     }
@@ -2398,7 +2402,11 @@ class AgentQStatusUpdater {
         });
         page++;
       } catch (error) {
-        console.error("Error populating cache:", error.message);
+        if (error instanceof Error) {
+          console.error("Error populating cache:", error.message);
+        } else {
+          console.error("Unknown error during populateTestCasesByTitle");
+        }
         throw error;
       }
     }
@@ -2424,7 +2432,11 @@ class AgentQStatusUpdater {
         const response = await this.client.patch(`/test-runs/${this.testRunId}/test-results/tcId/${id}`, data);
         return response.data;
       } catch (error) {
-        console.error(`Error patching result ${id}:`, error.message);
+        if (error instanceof Error) {
+          console.error(`Error patching result ${id}:`, error.message);
+        } else {
+          console.error(`Unknown error while patching result for ${id}`);
+        }
       }
     }
   }
@@ -2433,7 +2445,11 @@ class AgentQStatusUpdater {
       const response = await this.client.get(endpoint, { params });
       return response.data;
     } catch (error) {
-      console.error(`Error fetching ${endpoint}:`, error.message);
+      if (error instanceof Error) {
+        console.error(`Error fetching ${endpoint}:`, error.message);
+      } else {
+        console.error(`Unknown error fetching ${endpoint}`);
+      }
       throw error;
     }
   }
