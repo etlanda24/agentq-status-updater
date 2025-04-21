@@ -1,5 +1,5 @@
 {
-    "name": "@your-scope/my-api-client",
+    "name": "agentq-status-updater",
     "version": "1.0.0",
     "main": "./dist/index.js",
     "types": "./dist/index.d.ts",
