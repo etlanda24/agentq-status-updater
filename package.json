@@ -8,6 +8,7 @@
     "prepare": "npm run build"
   },
   "dependencies": {
+    "agentq-status-updater": "github:etlanda24/agentq-status-updater",
     "axios": "^1.6.7"
   },
   "devDependencies": {
