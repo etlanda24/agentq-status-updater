@@ -4,7 +4,14 @@
     "main": "./dist/index.js",
     "types": "./dist/index.d.ts",
     "scripts": {
-      "build": "bun build src/index.ts --outdir dist"
+      "build": "bun build src/index.ts --outdir dist",
+      "start": "bun run src/index.ts"
+    },
+    "devDependencies": {
+      "typescript": "^5.0.0"
+    },
+    "dependencies": {
+      "bun-fetch": "latest"
     }
   }
   

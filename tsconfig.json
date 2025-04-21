@@ -1,0 +1,17 @@
+{
+    "compilerOptions": {
+      "target": "ESNext",             // Use the latest JavaScript features
+      "module": "ESNext",             // Use ES Modules
+      "moduleResolution": "Node",     // Resolve modules like Node.js
+      "strict": true,                 // Enable strict type-checking
+      "esModuleInterop": true,        // Interop between ES and CommonJS modules
+      "skipLibCheck": true,           // Skip library checking (improves build time)
+      "forceConsistentCasingInFileNames": true,  // Enforce case sensitivity for file names
+      "outDir": "./dist",             // Output directory for compiled files
+      "declaration": true,            // Generate `.d.ts` files for type definitions
+      "allowJs": true                 // Allow JavaScript files if needed
+    },
+    "include": ["src/**/*"],           // Include all `.ts` files in the `src` directory
+    "exclude": ["node_modules"]        // Exclude `node_modules`
+  }
+  
