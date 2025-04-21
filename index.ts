@@ -1,5 +1,6 @@
 // src/AgentQStatusUpdater.ts
-import axios, { type AxiosInstance } from 'axios';
+import axios from 'axios';
+import type { AxiosInstance } from 'axios';
 
 type TestCase = {
   id: string;
