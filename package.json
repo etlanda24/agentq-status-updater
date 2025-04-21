@@ -4,8 +4,7 @@
   "main": "dist/AgentQStatusUpdater.js",
   "types": "dist/AgentQStatusUpdater.d.ts",
   "scripts": {
-    "build": "tsc",
-    "prepare": "npm run build"
+    "build": "tsc"
   },
   "dependencies": {
     "agentq-status-updater": "github:etlanda24/agentq-status-updater",
