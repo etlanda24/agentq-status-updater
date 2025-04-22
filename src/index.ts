@@ -52,9 +52,9 @@ type TestCase = {
   
       while (true) {
         try {
-          const response = await this.fetchJson(`/test-runs/${this.testRunId}/test-results`, { page, limit: 100 });
-  
-          const data = (response as TestResultsResponse).results;
+          const response = await fetch(`${this.baseUrl}/test-runs/${this.testRunId}/test-results?page=${page}&limit=100`, { headers: { Authorization: `Bearer ${this.apiKey}` } });
+          const responseJson = await response.json();
+          const data = (responseJson as TestResultsResponse).results;
           if (!data || data.length === 0) break;
   
           data.forEach(testCase => {
