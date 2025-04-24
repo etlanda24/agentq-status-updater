@@ -9,18 +9,36 @@ type TestCase = {
   
   class AgentQStatusUpdater {
     private apiKey: string;
+    private email: string;
+    private password: string;
     private baseUrl: string;
     private testRunId: string;
     private tcidToIdCache: Record<string, string>;
-  
-    constructor(apiKey: string, projectId: string, testRunId: string) {
-      this.apiKey = apiKey;
+    
+    constructor(email:string, password:string, projectId: string, testRunId: string) {
+      this.apiKey = "";
+      this.email = email
+      this.password = password;
       this.testRunId = testRunId;
       this.baseUrl = `https://agentq-sdet.mekari.io/api/projects/${projectId}`;
       this.tcidToIdCache = {};
     }
   
+    
+    async login(): Promise<any> {
+      const resp = await fetch(`https://agentq-sdet.mekari.io/api/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ "email": this.email, "password": this.password })
+      });
+      const respJson = await resp.json();
+      this.apiKey = respJson.access_token;
+    }
+
     async populateTestCases(): Promise<Record<string, string>> {
+      await this.login();
       this.tcidToIdCache = {};
       let page = 1;
   
@@ -47,6 +65,7 @@ type TestCase = {
     }
   
     async populateTestCasesByTitle(): Promise<Record<string, string>> {
+      await this.login();
       this.tcidToIdCache = {};
       let page = 1;
   
@@ -74,18 +93,22 @@ type TestCase = {
     }
   
     async getRunDetails(): Promise<any> {
+      await this.login();
       return this.fetchJson(`/test-runs/${this.testRunId}`);
     }
   
     async getCasesDetails(page = 1, limit = 100): Promise<any> {
+      await this.login();
       return this.fetchJson(`/test-runs/${this.testRunId}/test-results`, { page, limit });
     }
   
     async getSummary(): Promise<any> {
+      await this.login();
       return this.fetchJson(`/test-runs/${this.testRunId}/summary`);
     }
   
     async patchResult(testInfo: any): Promise<any> {
+      await this.login();
       const status = testInfo.status.toLowerCase();
       const data = { "status": status, "actualResult": "", "notes": "" };
       const title = testInfo.title;
@@ -102,6 +125,7 @@ type TestCase = {
     }
   
     private async fetchJson(endpoint: string, params: any = {}, method: string = 'GET'): Promise<any> {
+      await this.login();
       const url = new URL(endpoint, this.baseUrl);
       if (params) {
         Object.keys(params).forEach(key => url.searchParams.append(key, String(params[key])));

@@ -1,16 +1,32 @@
 // src/index.ts
 class AgentQStatusUpdater {
   apiKey;
+  email;
+  password;
   baseUrl;
   testRunId;
   tcidToIdCache;
-  constructor(apiKey, projectId, testRunId) {
-    this.apiKey = apiKey;
+  constructor(email, password, projectId, testRunId) {
+    this.apiKey = "";
+    this.email = email;
+    this.password = password;
     this.testRunId = testRunId;
     this.baseUrl = `https://agentq-sdet.mekari.io/api/projects/${projectId}`;
     this.tcidToIdCache = {};
   }
+  async login() {
+    const resp = await fetch(`https://agentq-sdet.mekari.io/api/auth/login`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ email: this.email, password: this.password })
+    });
+    const respJson = await resp.json();
+    this.apiKey = respJson.access_token;
+  }
   async populateTestCases() {
+    await this.login();
     this.tcidToIdCache = {};
     let page = 1;
     while (true) {
@@ -32,6 +48,7 @@ class AgentQStatusUpdater {
     return this.tcidToIdCache;
   }
   async populateTestCasesByTitle() {
+    await this.login();
     this.tcidToIdCache = {};
     let page = 1;
     while (true) {
@@ -55,15 +72,19 @@ class AgentQStatusUpdater {
     return this.tcidToIdCache;
   }
   async getRunDetails() {
+    await this.login();
     return this.fetchJson(`/test-runs/${this.testRunId}`);
   }
   async getCasesDetails(page = 1, limit = 100) {
+    await this.login();
     return this.fetchJson(`/test-runs/${this.testRunId}/test-results`, { page, limit });
   }
   async getSummary() {
+    await this.login();
     return this.fetchJson(`/test-runs/${this.testRunId}/summary`);
   }
   async patchResult(testInfo) {
+    await this.login();
     const status = testInfo.status.toLowerCase();
     const data = { status, actualResult: "", notes: "" };
     const title = testInfo.title;
@@ -78,6 +99,7 @@ class AgentQStatusUpdater {
     }
   }
   async fetchJson(endpoint, params = {}, method = "GET") {
+    await this.login();
     const url = new URL(endpoint, this.baseUrl);
     if (params) {
       Object.keys(params).forEach((key) => url.searchParams.append(key, String(params[key])));
