@@ -107,10 +107,10 @@ type TestCase = {
       return this.fetchJson(`/test-runs/${this.testRunId}/summary`);
     }
   
-    async patchResult(testInfo: any): Promise<any> {
+    async patchResult(testInfo: any, notes: any): Promise<any> {
       await this.login();
       const status = testInfo.status.toLowerCase();
-      const data = { "status": status, "actualResult": "", "notes": "" };
+      const data = { "status": status, "actualResult": "", "notes": notes };
       const title = testInfo.title;
       const cases = title.split('-')[0].split(',');
   

@@ -83,10 +83,10 @@ class AgentQStatusUpdater {
     await this.login();
     return this.fetchJson(`/test-runs/${this.testRunId}/summary`);
   }
-  async patchResult(testInfo) {
+  async patchResult(testInfo, notes) {
     await this.login();
     const status = testInfo.status.toLowerCase();
-    const data = { status, actualResult: "", notes: "" };
+    const data = { status, actualResult: "", notes };
     const title = testInfo.title;
     const cases = title.split("-")[0].split(",");
     for (const id of cases) {
